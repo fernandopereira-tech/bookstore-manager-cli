@@ -1,13 +1,13 @@
 import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 import { testConnection, pool } from './database/connection.js';
+import { exibirMenuAutores } from './menus/autorMenu.js';
 
 const rl = readline.createInterface({ input, output });
 
 async function main() {
   console.log('Iniciando o sistema BookStore Manager...');
   
-
   const isConnected = await testConnection();
   if (!isConnected) {
     console.log('Nao foi possivel iniciar o sistema sem conexao com o banco de dados.');
@@ -35,7 +35,7 @@ async function main() {
 
     switch (opcao) {
       case '1':
-        console.log('\n[Menu Autores em desenvolvimento...]\n');
+        await exibirMenuAutores(rl);
         break;
       case '2':
         console.log('\n[Menu Livros em desenvolvimento...]\n');
