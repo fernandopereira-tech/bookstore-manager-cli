@@ -1,4 +1,4 @@
-CREATE TABLE Autor (
+cd CREATE TABLE Autor (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     nacionalidade VARCHAR(100)
