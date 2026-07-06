@@ -4,6 +4,7 @@ import { testConnection, pool } from './database/connection.js';
 import { exibirMenuAutores } from './menus/autorMenu.js';
 import { exibirMenuLivros } from './menus/livroMenu.js';
 import { exibirMenuClientes } from './menus/clienteMenu.js';
+import { exibirMenuEmprestimos } from './menus/emprestimoMenu.js';
 
 const rl = readline.createInterface({ input, output });
 
@@ -46,7 +47,7 @@ async function main() {
         await exibirMenuClientes(rl);
         break;
       case '4':
-        console.log('\n[Menu Emprestimos em desenvolvimento...]\n');
+        await exibirMenuEmprestimos(rl);
         break;
       case '5':
         console.log('\n[Menu Relatorios em desenvolvimento...]\n');
