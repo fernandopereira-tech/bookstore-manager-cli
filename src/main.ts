@@ -3,6 +3,7 @@ import { stdin as input, stdout as output } from 'process';
 import { testConnection, pool } from './database/connection.js';
 import { exibirMenuAutores } from './menus/autorMenu.js';
 import { exibirMenuLivros } from './menus/livroMenu.js';
+import { exibirMenuClientes } from './menus/clienteMenu.js';
 
 const rl = readline.createInterface({ input, output });
 
@@ -42,7 +43,7 @@ async function main() {
         await exibirMenuLivros(rl);
         break;;
       case '3':
-        console.log('\n[Menu Clientes em desenvolvimento...]\n');
+        await exibirMenuClientes(rl);
         break;
       case '4':
         console.log('\n[Menu Emprestimos em desenvolvimento...]\n');
