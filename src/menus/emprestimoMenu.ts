@@ -1,5 +1,6 @@
 import readline from 'readline/promises';
-import { cadastrarEmprestimo, listarEmprestimos, registrarDevolucao } from '../repositories/emprestimoRepository.js';
+import * as emprestimoService from '../services/emprestimoService.js';
+import { listarEmprestimos } from '../repositories/emprestimoRepository.js';
 import { listarClientes } from '../repositories/clienteRepository.js';
 import { listarLivros } from '../repositories/livroRepository.js';
 
@@ -47,11 +48,11 @@ export async function exibirMenuEmprestimos(rl: readline.Interface) {
             break;
           }
 
-          const novoEmprestimo = await cadastrarEmprestimo(clienteId, livroId);
+          const novoEmprestimo = await emprestimoService.realizarEmprestimo(clienteId, livroId);
           console.log(`\nEmpréstimo registrado com sucesso sob o ID ${novoEmprestimo.id}!`);
 
-        } catch (error) {
-          console.error('Erro ao registrar empréstimo:', error);
+        } catch (error: any) {
+          console.log(`\n${error.message}`);
         }
         break;
 
@@ -78,18 +79,33 @@ export async function exibirMenuEmprestimos(rl: readline.Interface) {
       case '3':
         try {
           console.log('\n--- Registrar Devolução ---');
-          const idDevolucao = await rl.question('Digite o ID do empréstimo que deseja dar baixa: ');
+          const idDevolucaoStr = await rl.question('Digite o ID do empréstimo que deseja dar baixa: ');
 
-          if (!idDevolucao) {
+          if (!idDevolucaoStr) {
             console.log('Erro: O ID do empréstimo é obrigatório.');
             break;
           }
 
-          const devolvido = await registrarDevolucao(Number(idDevolucao));
+          const idDevolucao = Number(idDevolucaoStr);
+
+          const emprestimos = await listarEmprestimos();
+          const emprestimoAtual = emprestimos.find(e => e.id === idDevolucao);
+
+          if (!emprestimoAtual) {
+            console.log('\nErro: Empréstimo não encontrado.');
+            break;
+          }
+
+          if (emprestimoAtual.data_devolucao) {
+            console.log('\nErro: Este empréstimo já foi encerrado anteriormente.');
+            break;
+          }
+
+          const devolvido = await emprestimoService.realizarDevolucao(idDevolucao, emprestimoAtual.livro_id);
           if (devolvido) {
-            console.log('\nDevolução registrada com sucesso!');
+            console.log('\nDevolução registrada com sucesso e estoque do livro updated!');
           } else {
-            console.log('\nErro: Empréstimo não encontrado ou já encerrado anteriormente.');
+            console.log('\nErro ao processar a devolução.');
           }
         } catch (error) {
           console.error('Erro ao registrar devolução:', error);
