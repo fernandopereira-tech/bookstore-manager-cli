@@ -1,7 +1,9 @@
 export interface Emprestimo {
-    id?: number;
-    cliente_id: number;
-    libro_id: number; // mantendo o padrão de escrita do seu banco
-    data_emprestimo?: Date;
-    data_devolucao?: Date | null;
+  id?: number;
+  cliente_id: number;
+  livro_id: number;
+  data_emprestimo?: Date | string;
+  data_devolucao?: Date | string | null;
+  nome_cliente?: string;
+  titulo_livro?: string;
 }

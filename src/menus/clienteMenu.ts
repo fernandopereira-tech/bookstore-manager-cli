@@ -1,12 +1,13 @@
 import readline from 'readline/promises';
-import { cadastrarCliente, listarClientes, atualizarCliente, excluirCliente } from '../repositories/clienteRepository.js';
+import * as clienteService from '../services/clienteService.js';
+import { listarClientes, atualizarCliente, excluirCliente } from '../repositories/clienteRepository.js';
 
 export async function exibirMenuClientes(rl: readline.Interface) {
   let emSubmenu = true;
 
   while (emSubmenu) {
     console.log('\n====================================');
-    console.log('        GERENCIAR CLIENTES          ');
+    console.log('      GERENCIAR CLIENTES            ');
     console.log('====================================');
     console.log('1. Cadastrar Cliente');
     console.log('2. Listar Clientes');
@@ -30,15 +31,11 @@ export async function exibirMenuClientes(rl: readline.Interface) {
             break;
           }
 
-          const novoCliente = await cadastrarCliente(nome, email, telefone || null);
+          const novoCliente = await clienteService.registrarCliente(nome, email, telefone || null);
           console.log(`\nCliente [${novoCliente.nome}] cadastrado com sucesso com o ID ${novoCliente.id}!`);
 
         } catch (error: any) {
-          if (error.code === '23505') {
-            console.log('\nErro: Este e-mail ja esta cadastrado para outro cliente.');
-          } else {
-            console.error('Erro ao cadastrar cliente:', error);
-          }
+          console.log(`\n${error.message}`);
         }
         break;
 
@@ -74,7 +71,7 @@ export async function exibirMenuClientes(rl: readline.Interface) {
 
           const atualizado = await atualizarCliente(Number(idAlterar), novoNome, novoEmail, novoTelefone || null);
           if (atualizado) {
-            console.log('\nCliente atualizado com sucesso!');
+            console.log('\nCliente updated com sucesso!');
           } else {
             console.log('\nErro: Cliente nao encontrado com o ID informado.');
           }
@@ -91,9 +88,9 @@ export async function exibirMenuClientes(rl: readline.Interface) {
         try {
           console.log('\n--- Excluir Cliente ---');
           const idExcluir = await rl.question('Digite o ID do cliente que deseja excluir: ');
-          const confirmacao = await rl.question(`Tem certeza que deseja excluir o cliente ID ${idExcluir}? (s/n): `);
+          const confirmation = await rl.question(`Tem certeza que deseja excluir o cliente ID ${idExcluir}? (s/n): `);
 
-          if (confirmacao.toLowerCase() === 's') {
+          if (confirmation.toLowerCase() === 's') {
             const excluido = await excluirCliente(Number(idExcluir));
             if (excluido) {
               console.log('\nCliente removido com sucesso!');
