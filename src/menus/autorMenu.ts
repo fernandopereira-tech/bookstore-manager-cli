@@ -1,5 +1,6 @@
-import { cadastrarAutor, listarAutores, atualizarAutor, excluirAutor } from '../repositories/autorRepository.js';
 import readline from 'readline/promises';
+import * as autorService from '../services/autorService.js';
+import { listarAutores, excluirAutor } from '../repositories/autorRepository.js';
 
 export async function exibirMenuAutores(rl: readline.Interface) {
   let emSubmenu = true;
@@ -19,19 +20,20 @@ export async function exibirMenuAutores(rl: readline.Interface) {
 
     switch (opcao) {
       case '1':
-        const nome = await rl.question('\nNome do Autor: ');
-        const biografia = await rl.question('Biografia: ');
-        
-        if (!nome) {
-          console.log('Erro: O nome do autor é obrigatório.');
-          break;
-        }
-
         try {
-          const novoAutor = await cadastrarAutor(nome, biografia);
+          console.log('\n--- Novo Autor ---');
+          const nome = await rl.question('Nome do Autor: ');
+          const biografia = await rl.question('Biografia: ');
+          
+          if (!nome) {
+            console.log('Erro: O nome do autor é obrigatório.');
+            break;
+          }
+
+          const novoAutor = await autorService.registrarAutor(nome, biografia);
           console.log(`\nAutor [${novoAutor.nome}] cadastrado com sucesso com o ID ${novoAutor.id}!`);
-        } catch (error) {
-          console.error('Erro ao cadastrar autor:', error);
+        } catch (error: any) {
+          console.log(`\n${error.message}`);
         }
         break;
 
@@ -54,7 +56,8 @@ export async function exibirMenuAutores(rl: readline.Interface) {
 
       case '3':
         try {
-          const idAlterar = await rl.question('\nDigite o ID do autor que deseja atualizar: ');
+          console.log('\n--- Atualizar Autor ---');
+          const idAlterar = await rl.question('Digite o ID do autor que deseja atualizar: ');
           const novoNome = await rl.question('Novo Nome: ');
           const novaBio = await rl.question('Nova Biografia: ');
 
@@ -63,20 +66,21 @@ export async function exibirMenuAutores(rl: readline.Interface) {
             break;
           }
 
-          const atualizado = await atualizarAutor(Number(idAlterar), novoNome, novaBio);
+          const atualizado = await autorService.modificarAutor(Number(idAlterar), novoNome, novaBio);
           if (atualizado) {
             console.log('\nAutor atualizado com sucesso!');
           } else {
             console.log('\nErro: Autor não encontrado com o ID informado.');
           }
-        } catch (error) {
-          console.error('Erro ao atualizar autor:', error);
+        } catch (error: any) {
+          console.log(`\n${error.message}`);
         }
         break;
 
       case '4':
         try {
-          const idExcluir = await rl.question('\nDigite o ID do autor que deseja excluir: ');
+          console.log('\n--- Excluir Autor ---');
+          const idExcluir = await rl.question('Digite o ID do autor que deseja excluir: ');
           const confirmacao = await rl.question(`Tem certeza que deseja excluir o autor ID ${idExcluir}? (s/n): `);
 
           if (confirmacao.toLowerCase() === 's') {
