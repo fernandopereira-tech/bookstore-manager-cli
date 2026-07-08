@@ -1,8 +1,12 @@
 import * as emprestimoRepository from '../repositories/emprestimoRepository.js';
 import * as livroRepository from '../repositories/livroRepository.js';
+import * as clienteRepository from '../repositories/clienteRepository.js';
 import { Emprestimo } from '../models/emprestimo.js';
 
 export async function cadastrarEmprestimo(clienteId: number, livroId: number): Promise<Emprestimo> {
+  const cliente = await clienteRepository.buscarClientePorId(clienteId);
+  if (!cliente) throw new Error('Cliente nao encontrado.');
+
   const livro = await livroRepository.buscarLivroPorId(livroId);
   if (!livro) throw new Error('Livro nao encontrado.');
   if (!livro.quantidade_disponivel || livro.quantidade_disponivel <= 0) throw new Error('Livro esgotado no estoque.');

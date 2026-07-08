@@ -7,6 +7,12 @@ export async function buscarClientePorEmail(email: string): Promise<Cliente | nu
   return res.rows.length > 0 ? res.rows[0] : null;
 }
 
+export async function buscarClientePorId(id: number): Promise<Cliente | null> {
+  const query = 'SELECT * FROM cliente WHERE id = $1;';
+  const res = await pool.query(query, [id]);
+  return res.rows.length > 0 ? res.rows[0] : null;
+}
+
 export async function cadastrarCliente(nome: string, email: string, telefone: string | null): Promise<Cliente> {
   const query = `
     INSERT INTO cliente (nome, email, telefone) 
