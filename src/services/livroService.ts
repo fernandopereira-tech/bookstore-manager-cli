@@ -1,29 +1,22 @@
 import * as livroRepository from '../repositories/livroRepository.js';
 import { Livro } from '../models/livro.js';
 
-export async function registrarLivro(
-  titulo: string, 
-  anoPublicacao: number | null, 
-  autorId: number, 
-  quantidadeDisponivel: number
-): Promise<Livro> {
-  if (quantidadeDisponivel < 0) {
-    throw new Error("Erro: A quantidade disponível do livro não pode ser menor que zero.");
-  }
-
-  return await livroRepository.cadastrarLivro(titulo, anoPublicacao, autorId, quantidadeDisponivel);
+export async function cadastrarLivro(titulo: string, anoPublicacao: number | null, autorId: number, quantidade: number): Promise<Livro> {
+  if (!titulo.trim()) throw new Error('O titulo do livro nao pode ser vazio.');
+  if (quantidade < 0) throw new Error('A quantidade nao pode ser negativa.');
+  return await livroRepository.cadastrarLivro(titulo, anoPublicacao, autorId, quantidade);
 }
 
-export async function modificarLivro(
-  id: number, 
-  titulo: string, 
-  anoPublicacao: number | null, 
-  autorId: number,
-  quantidadeDisponivel: number
-): Promise<boolean> {
-  if (quantidadeDisponivel < 0) {
-    throw new Error("Erro: A quantidade disponível do livro não pode ser menor que zero.");
-  }
+export async function listarLivros(): Promise<Livro[]> {
+  return await livroRepository.listarLivros();
+}
 
-  return await livroRepository.atualizarLivro(id, titulo, anoPublicacao, autorId, quantidadeDisponivel);
+export async function atualizarLivro(id: number, titulo: string, anoPublicacao: number | null, autorId: number, quantidade: number): Promise<boolean> {
+  if (!titulo.trim()) throw new Error('O titulo do livro nao pode ser vazio.');
+  if (quantidade < 0) throw new Error('A quantidade nao pode ser negativa.');
+  return await livroRepository.atualizarLivro(id, titulo, anoPublicacao, autorId, quantidade);
+}
+
+export async function excluirLivro(id: number): Promise<boolean> {
+  return await livroRepository.excluirLivro(id);
 }

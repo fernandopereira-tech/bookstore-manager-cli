@@ -1,116 +1,61 @@
-import readline from 'readline/promises';
-import * as clienteService from '../services/clienteService.js';
-import { listarClientes, atualizarCliente, excluirCliente } from '../repositories/clienteRepository.js';
+import readline from 'readline';
+import * as clienteController from '../controllers/clienteController.js';
 
-export async function exibirMenuClientes(rl: readline.Interface) {
-  let emSubmenu = true;
-
-  while (emSubmenu) {
-    console.log('\n====================================');
-    console.log('      GERENCIAR CLIENTES            ');
-    console.log('====================================');
+export async function exibirMenuClientes(rl: readline.Interface): Promise<void> {
+  while (true) {
+    console.log('\n--- GERENCIAR CLIENTES ---');
     console.log('1. Cadastrar Cliente');
     console.log('2. Listar Clientes');
     console.log('3. Atualizar Cliente');
     console.log('4. Excluir Cliente');
-    console.log('0. Voltar ao Menu Principal');
-    console.log('====================================');
+    console.log('0. Voltar');
 
-    const opcao = await rl.question('Escolha uma opcao: ');
+    const opcao = await new Promise<string>((resolve) => rl.question('Escolha uma opcao: ', resolve));
 
-    switch (opcao) {
-      case '1':
-        try {
-          console.log('\n--- Novo Cliente ---');
-          const nome = await rl.question('Nome do Cliente: ');
-          const email = await rl.question('E-mail: ');
-          const telefone = await rl.question('Telefone (opcional): ');
+    if (opcao === '0') break;
 
-          if (!nome || !email) {
-            console.log('Erro: Nome e E-mail sao obrigatorios.');
-            break;
-          }
-
-          const novoCliente = await clienteService.registrarCliente(nome, email, telefone || null);
-          console.log(`\nCliente [${novoCliente.nome}] cadastrado com sucesso com o ID ${novoCliente.id}!`);
-
-        } catch (error: any) {
-          console.log(`\n${error.message}`);
+    try {
+      switch (opcao) {
+        case '1': {
+          const nome = await new Promise<string>((resolve) => rl.question('Nome: ', resolve));
+          const email = await new Promise<string>((resolve) => rl.question('Email: ', resolve));
+          const telefone = await new Promise<string>((resolve) => rl.question('Telefone: ', resolve));
+          const cliente = await clienteController.cadastrar(nome, email, telefone || null);
+          console.log(`Cliente cadastrado com sucesso! ID: ${cliente.id}`);
+          break;
         }
-        break;
-
-      case '2':
-        try {
-          const clientes = await listarClientes();
-          console.log('\n--- Lista de Clientes ---');
+        case '2': {
+          const clientes = await clienteController.listar();
           if (clientes.length === 0) {
             console.log('Nenhum cliente cadastrado.');
           } else {
-            clientes.forEach(cliente => {
-              console.log(`ID: ${cliente.id} | Nome: ${cliente.nome} | E-mail: ${cliente.email} | Tel: ${cliente.telefone || 'N/A'}`);
-            });
+            console.log('\n--- LISTA DE CLIENTES ---');
+            clientes.forEach((c) => console.log(`ID: ${c.id} | Nome: ${c.nome} | Email: ${c.email} | Telefone: ${c.telefone || 'N/A'}`));
           }
-          console.log('------------------------------------');
-        } catch (error) {
-          console.error('Erro ao listar clientes:', error);
+          break;
         }
-        break;
-
-      case '3':
-        try {
-          console.log('\n--- Atualizar Cliente ---');
-          const idAlterar = await rl.question('Digite o ID do cliente que deseja atualizar: ');
-          const novoNome = await rl.question('Novo Nome: ');
-          const novoEmail = await rl.question('Novo E-mail: ');
-          const novoTelefone = await rl.question('Novo Telefone (opcional): ');
-
-          if (!novoNome || !novoEmail) {
-            console.log('Erro: Nome e E-mail nao podem ficar em branco.');
-            break;
-          }
-
-          const atualizado = await atualizarCliente(Number(idAlterar), novoNome, novoEmail, novoTelefone || null);
-          if (atualizado) {
-            console.log('\nCliente updated com sucesso!');
-          } else {
-            console.log('\nErro: Cliente nao encontrado com o ID informado.');
-          }
-        } catch (error: any) {
-          if (error.code === '23505') {
-            console.log('\nErro: Nao foi possivel atualizar. Este e-mail ja esta em uso por outro cliente.');
-          } else {
-            console.error('Erro ao atualizar cliente:', error);
-          }
+        case '3': {
+          const idStr = await new Promise<string>((resolve) => rl.question('ID do Cliente a atualizar: ', resolve));
+          const nome = await new Promise<string>((resolve) => rl.question('Novo Nome: ', resolve));
+          const email = await new Promise<string>((resolve) => rl.question('Novo Email: ', resolve));
+          const telefone = await new Promise<string>((resolve) => rl.question('Novo Telefone: ', resolve));
+          const atualizado = await clienteController.atualizar(Number(idStr), nome, email, telefone || null);
+          if (atualizado) console.log('Cliente atualizado com sucesso!');
+          else console.log('Cliente nao encontrado.');
+          break;
         }
-        break;
-
-      case '4':
-        try {
-          console.log('\n--- Excluir Cliente ---');
-          const idExcluir = await rl.question('Digite o ID do cliente que deseja excluir: ');
-          const confirmation = await rl.question(`Tem certeza que deseja excluir o cliente ID ${idExcluir}? (s/n): `);
-
-          if (confirmation.toLowerCase() === 's') {
-            const excluido = await excluirCliente(Number(idExcluir));
-            if (excluido) {
-              console.log('\nCliente removido com sucesso!');
-            } else {
-              console.log('\nErro: Cliente nao encontrado com o ID informado.');
-            }
-          } else {
-            console.log('\nExclusao cancelada.');
-          }
-        } catch (error) {
-          console.error('Erro ao excluir cliente:', error);
+        case '4': {
+          const idStr = await new Promise<string>((resolve) => rl.question('ID do Cliente a excluir: ', resolve));
+          const excluido = await clienteController.excluir(Number(idStr));
+          if (excluido) console.log('Cliente excluido com sucesso!');
+          else console.log('Cliente nao encontrado.');
+          break;
         }
-        break;
-
-      case '0':
-        emSubmenu = false;
-        break;
-
-      default:
-        console.log('\nOpcao invalida! Tente novamente.');
+        default:
+          console.log('Opcao invalida!');
+      }
+    } catch (error: any) {
+      console.error(`Erro: ${error.message}`);
     }
   }
 }

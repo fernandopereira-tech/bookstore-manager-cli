@@ -1,34 +1,31 @@
-cd CREATE TABLE Autor (
+CREATE TABLE IF NOT EXISTS autor (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
-    nacionalidade VARCHAR(100)
+    biografia TEXT
 );
 
+CREATE TABLE IF NOT EXISTS cliente (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    telefone VARCHAR(20)
+);
 
-CREATE TABLE Livro (
+CREATE TABLE IF NOT EXISTS livro (
     id SERIAL PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
-    isbn VARCHAR(13) UNIQUE NOT NULL,
-    preco NUMERIC(10, 2) NOT NULL,
-    quantidade_estoque INTEGER NOT NULL DEFAULT 0,
-    fk_autor INTEGER NOT NULL,
-    CONSTRAINT fk_livro_autor FOREIGN KEY (fk_autor) REFERENCES Autor(id) ON DELETE RESTRICT
+    ano_publicacao INT,
+    autor_id INT NOT NULL,
+    quantidade_disponivel INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_autor FOREIGN KEY (autor_id) REFERENCES autor(id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE Cliente (
+CREATE TABLE IF NOT EXISTS emprestimo (
     id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL
-);
-
-
-CREATE TABLE Emprestimo (
-    id SERIAL PRIMARY KEY,
-    data_emprestimo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    data_devolucao TIMESTAMP,
-    fk_cliente INTEGER NOT NULL,
-    fk_livro INTEGER NOT NULL,
-    CONSTRAINT fk_emprestimo_cliente FOREIGN KEY (fk_cliente) REFERENCES Cliente(id) ON DELETE CASCADE,
-    CONSTRAINT fk_emprestimo_livro FOREIGN KEY (fk_livro) REFERENCES Livro(id) ON DELETE RESTRICT
+    cliente_id INT NOT NULL,
+    livro_id INT NOT NULL,
+    data_emprestimo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_devolucao DATE,
+    CONSTRAINT fk_cliente FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE CASCADE,
+    CONSTRAINT fk_livro FOREIGN KEY (livro_id) REFERENCES livro(id) ON DELETE CASCADE
 );
