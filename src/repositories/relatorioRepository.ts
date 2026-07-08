@@ -1,19 +1,5 @@
 import { pool } from '../database/connection.js';
-
-export interface RelatorioLivro {
-  titulo: string;
-  quantidade: number;
-}
-
-export interface RelatorioCliente {
-  nome: string;
-  quantidade: number;
-}
-
-export interface RelatorioStatus {
-  status: string;
-  quantidade: number;
-}
+import { RelatorioLivro, RelatorioCliente, RelatorioStatus } from '../models/relatorio.js';
 
 export async function obterLivrosMaisEmprestados(): Promise<RelatorioLivro[]> {
   const query = `
