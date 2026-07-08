@@ -1,23 +1,20 @@
 import * as autorRepository from '../repositories/autorRepository.js';
 import { Autor } from '../models/autor.js';
 
-export async function registrarAutor(nome: string, biografia: string): Promise<Autor> {
-    if (!nome || nome.trim() === '') {
-        throw new Error("Erro: O nome do autor é obrigatório e não pode conter apenas espaços.");
-    }
-
-    return await autorRepository.cadastrarAutor(nome.trim(), biografia);
+export async function cadastrarAutor(nome: string, biografia: string): Promise<Autor> {
+  if (!nome.trim()) throw new Error('O nome do autor nao pode ser vazio.');
+  return await autorRepository.cadastrarAutor(nome, biografia);
 }
 
-export async function modificarAutor(id: number, nome: string, biografia: string): Promise<boolean> {
-    if (!nome || nome.trim() === '') {
-        throw new Error("Erro: O nome do autor não pode ficar em branco.");
-    }
+export async function listarAutores(): Promise<Autor[]> {
+  return await autorRepository.listarAutores();
+}
 
-    const autorExistente = await autorRepository.buscarAutorPorId(id);
-    if (!autorExistente) {
-        return false;
-    }
+export async function atualizarAutor(id: number, nome: string, biografia: string): Promise<boolean> {
+  if (!nome.trim()) throw new Error('O nome do autor nao pode ser vazio.');
+  return await autorRepository.atualizarAutor(id, nome, biografia);
+}
 
-    return await autorRepository.atualizarAutor(id, nome.trim(), biografia);
+export async function excluirAutor(id: number): Promise<boolean> {
+  return await autorRepository.excluirAutor(id);
 }

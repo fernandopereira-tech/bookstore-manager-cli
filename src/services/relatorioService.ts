@@ -1,14 +1,21 @@
 import * as relatorioRepository from '../repositories/relatorioRepository.js';
-import { RelatorioLivro, RelatorioCliente, RelatorioStatus } from '../models/relatorio.js';
 
-export async function buscarLivrosMaisEmprestados(): Promise<RelatorioLivro[]> {
-  return await relatorioRepository.obterLivrosMaisEmprestados();
+export async function buscarLivrosDisponiveis(): Promise<any[]> {
+  return await relatorioRepository.obterLivrosDisponiveis();
 }
 
-export async function buscarClientesMaisAtivos(): Promise<RelatorioCliente[]> {
-  return await relatorioRepository.obterClientesMaisAtivos();
+export async function buscarLivrosEmprestados(): Promise<any[]> {
+  return await relatorioRepository.obterLivrosEmprestados();
 }
 
-export async function buscarResumoStatus(): Promise<RelatorioStatus[]> {
-  return await relatorioRepository.obterResumoStatus();
+export async function buscarLivrosPorAutor(): Promise<any[]> {
+  return await relatorioRepository.obterLivrosPorAutor();
+}
+
+export async function buscarQuantidadeEmprestimosPorLivro(): Promise<any[]> {
+  return await relatorioRepository.obterQuantidadeEmprestimosPorLivro();
+}
+
+export async function buscarClientesComEmprestimosAtivos(): Promise<any[]> {
+  return await relatorioRepository.obterClientesComEmprestimosAtivos();
 }
