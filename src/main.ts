@@ -5,6 +5,7 @@ import { exibirMenuAutores } from './menus/autorMenu.js';
 import { exibirMenuLivros } from './menus/livroMenu.js';
 import { exibirMenuClientes } from './menus/clienteMenu.js';
 import { exibirMenuEmprestimos } from './menus/emprestimoMenu.js';
+import { exibirMenuRelatorios } from './menus/relatorioMenu.js';
 
 const rl = readline.createInterface({ input, output });
 
@@ -42,7 +43,7 @@ async function main() {
         break;
       case '2':
         await exibirMenuLivros(rl);
-        break;;
+        break;
       case '3':
         await exibirMenuClientes(rl);
         break;
@@ -50,19 +51,18 @@ async function main() {
         await exibirMenuEmprestimos(rl);
         break;
       case '5':
-        console.log('\n[Menu Relatorios em desenvolvimento...]\n');
+        await exibirMenuRelatorios(rl);
         break;
       case '0':
         console.log('\nEncerrando o sistema. Ate logo!');
-        sistemaAtivo = false;
+        rl.close();
+        await pool.end();
+        process.exit(0);
         break;
       default:
         console.log('\nOpcao invalida! Tente novamente.\n');
     }
   }
-
-  rl.close();
-  await pool.end();
 }
 
 main();

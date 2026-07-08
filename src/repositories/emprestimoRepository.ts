@@ -1,13 +1,22 @@
 import { pool } from '../database/connection.js';
+import { Emprestimo } from '../models/emprestimo.js';
 
-export interface Emprestimo {
-  id?: number;
-  cliente_id: number;
-  livro_id: number;
-  data_emprestimo?: Date | string;
-  data_devolucao?: Date | string | null;
-  nome_cliente?: string;
-  titulo_livro?: string;
+export async function contarEmprestimosAtivosPorCliente(clienteId: number): Promise<number> {
+  const query = `
+    SELECT COUNT(*) FROM emprestimo 
+    WHERE cliente_id = $1 AND data_devolucao IS NULL;
+  `;
+  const res = await pool.query(query, [clienteId]);
+  return parseInt(res.rows[0].count);
+}
+
+export async function atualizarEstoqueLivro(livroId: number, quantidade: number): Promise<void> {
+  const query = `
+    UPDATE livro 
+    SET quantidade_disponivel = quantidade_disponivel + $1 
+    WHERE id = $2;
+  `;
+  await pool.query(query, [quantidade, livroId]);
 }
 
 export async function cadastrarEmprestimo(clienteId: number, livroId: number): Promise<Emprestimo> {

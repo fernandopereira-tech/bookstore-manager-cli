@@ -1,10 +1,10 @@
 import { pool } from '../database/connection.js';
+import { Cliente } from '../models/cliente.js';
 
-export interface Cliente {
-  id?: number;
-  nome: string;
-  email: string;
-  telefone?: string;
+export async function buscarClientePorEmail(email: string): Promise<Cliente | null> {
+  const query = 'SELECT * FROM cliente WHERE email = $1;';
+  const res = await pool.query(query, [email.trim()]);
+  return res.rows.length > 0 ? res.rows[0] : null;
 }
 
 export async function cadastrarCliente(nome: string, email: string, telefone: string | null): Promise<Cliente> {
