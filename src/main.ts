@@ -42,7 +42,7 @@ async function main() {
         break;
       case '2':
         await exibirMenuLivros(rl);
-        break;;
+        break;
       case '3':
         await exibirMenuClientes(rl);
         break;
@@ -54,15 +54,14 @@ async function main() {
         break;
       case '0':
         console.log('\nEncerrando o sistema. Ate logo!');
-        sistemaAtivo = false;
+        rl.close();
+        await pool.end();
+        process.exit(0);
         break;
       default:
         console.log('\nOpcao invalida! Tente novamente.\n');
     }
   }
-
-  rl.close();
-  await pool.end();
 }
 
 main();

@@ -1,5 +1,6 @@
 import readline from 'readline/promises';
-import { cadastrarLivro, listarLivros, atualizarLivro, excluirLivro } from '../repositories/livroRepository.js';
+import * as livroService from '../services/livroService.js';
+import { listarLivros, excluirLivro } from '../repositories/livroRepository.js';
 import { listarAutores } from '../repositories/autorRepository.js';
 
 export async function exibirMenuLivros(rl: readline.Interface) {
@@ -25,14 +26,16 @@ export async function exibirMenuLivros(rl: readline.Interface) {
           const titulo = await rl.question('Titulo do Livro: ');
           const anoStr = await rl.question('Ano de Publicacao (opcional): ');
           const autorIdStr = await rl.question('ID do Autor: ');
+          const qtdStr = await rl.question('Quantidade em Estoque Inicial: ');
 
-          if (!titulo || !autorIdStr) {
-            console.log('Erro: Titulo e ID do Autor sao obrigatorios.');
+          if (!titulo || !autorIdStr || !qtdStr) {
+            console.log('Erro: Titulo, ID do Autor e Quantidade sao obrigatorios.');
             break;
           }
 
           const autorId = Number(autorIdStr);
           const anoPublicacao = anoStr ? Number(anoStr) : null;
+          const quantidadeDisponivel = Number(qtdStr);
 
           const autoresExistentes = await listarAutores();
           const autorExiste = autoresExistentes.some(autor => autor.id === autorId);
@@ -43,10 +46,10 @@ export async function exibirMenuLivros(rl: readline.Interface) {
             break;
           }
 
-          const novoLivro = await cadastrarLivro(titulo, anoPublicacao, autorId);
+          const novoLivro = await livroService.registrarLivro(titulo, anoPublicacao, autorId, quantidadeDisponivel);
           console.log(`\nLivro [${novoLivro.titulo}] cadastrado com sucesso com o ID ${novoLivro.id}!`);
-        } catch (error) {
-          console.error('Erro ao cadastrar livro:', error);
+        } catch (error: any) {
+          console.log(`\n${error.message}`);
         }
         break;
 
@@ -58,10 +61,11 @@ export async function exibirMenuLivros(rl: readline.Interface) {
             console.log('Nenhum livro cadastrado.');
           } else {
             livros.forEach(livro => {
-              console.log(`ID: ${livro.id} | Titulo: ${livro.titulo} | Ano: ${livro.ano_publicacao || 'N/A'} | Autor: ${livro.nome_autor} (ID: ${livro.autor_id})`);
+              console.log(`ID: ${livro.id} | Titulo: "${livro.titulo}" | Estoque: ${livro.quantidade_disponivel ?? 0}`);
+              console.log(`   Ano: ${livro.ano_publicacao || 'N/A'} | Autor: ${livro.nome_autor} (ID: ${livro.autor_id})`);
+              console.log('------------------------------------');
             });
           }
-          console.log('------------------------------------');
         } catch (error) {
           console.error('Erro ao listar livros:', error);
         }
@@ -69,20 +73,21 @@ export async function exibirMenuLivros(rl: readline.Interface) {
 
       case '3':
         try {
-          console.log('\n--- Atualizar Livro ---');
+          console.log('\n--- Mudança de Dados do Livro ---');
           const idAlterar = await rl.question('Digite o ID do livro que deseja atualizar: ');
           const novoTitulo = await rl.question('Novo Titulo: ');
           const novoAnoStr = await rl.question('Novo Ano de Publicacao (opcional): ');
           const novoAutorIdStr = await rl.question('Novo ID do Autor: ');
+          const novaQtdStr = await rl.question('Nova Quantidade em Estoque: ');
 
-          if (!novoTitulo || !novoAutorIdStr) {
-            console.log('Erro: Titulo e ID do Autor nao podem ficar em branco.');
+          if (!novoTitulo || !novoAutorIdStr || !novaQtdStr) {
+            console.log('Erro: Titulo, ID do Autor e Quantidade nao podem ficar em branco.');
             break;
           }
 
           const novoAutorId = Number(novoAutorIdStr);
           const novoAno = novoAnoStr ? Number(novoAnoStr) : null;
-
+          const novaQuantidade = Number(novaQtdStr);
 
           const autoresExistentes = await listarAutores();
           const autorExiste = autoresExistentes.some(autor => autor.id === novoAutorId);
@@ -92,14 +97,14 @@ export async function exibirMenuLivros(rl: readline.Interface) {
             break;
           }
 
-          const atualizado = await atualizarLivro(Number(idAlterar), novoTitulo, novoAno, novoAutorId);
+          const atualizado = await livroService.modificarLivro(Number(idAlterar), novoTitulo, novoAno, novoAutorId, novaQuantidade);
           if (atualizado) {
             console.log('\nLivro atualizado com sucesso!');
           } else {
             console.log('\nErro: Livro nao encontrado com o ID informado.');
           }
-        } catch (error) {
-          console.error('Erro ao atualizar livro:', error);
+        } catch (error: any) {
+          console.log(`\n${error.message}`);
         }
         break;
 
