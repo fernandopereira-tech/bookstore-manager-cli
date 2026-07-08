@@ -5,6 +5,7 @@ import { exibirMenuAutores } from './menus/autorMenu.js';
 import { exibirMenuLivros } from './menus/livroMenu.js';
 import { exibirMenuClientes } from './menus/clienteMenu.js';
 import { exibirMenuEmprestimos } from './menus/emprestimoMenu.js';
+import { exibirMenuRelatorios } from './menus/relatorioMenu.js';
 
 const rl = readline.createInterface({ input, output });
 
@@ -50,7 +51,7 @@ async function main() {
         await exibirMenuEmprestimos(rl);
         break;
       case '5':
-        console.log('\n[Menu Relatorios em desenvolvimento...]\n');
+        await exibirMenuRelatorios(rl);
         break;
       case '0':
         console.log('\nEncerrando o sistema. Ate logo!');

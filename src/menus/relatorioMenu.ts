@@ -1,16 +1,12 @@
 import readline from 'readline/promises';
-import { 
-  obterLivrosMaisEmprestados, 
-  obterClientesMaisAtivos, 
-  obterResumoStatus 
-} from '../repositories/relatorioRepository.js';
+import * as relatorioService from '../services/relatorioService.js';
 
 export async function exibirMenuRelatorios(rl: readline.Interface) {
   let emSubmenu = true;
 
   while (emSubmenu) {
     console.log('\n====================================');
-    console.log('        RELATÓRIOS GERENCIAIS       ');
+    console.log('        RELATÓRIOS GERENCIAIS        ');
     console.log('====================================');
     console.log('1. Livros Mais Emprestados (Top 5)');
     console.log('2. Clientes Mais Ativos (Top 5)');
@@ -23,41 +19,40 @@ export async function exibirMenuRelatorios(rl: readline.Interface) {
     switch (opcao) {
       case '1':
         try {
-          const dados = await obterLivrosMaisEmprestados();
+          const dados = await relatorioService.buscarLivrosMaisEmprestados();
           console.log('\n--- TOP 5 LIVROS MAIS EMPRESTADOS ---');
           if (dados.length === 0) console.log('Nenhum dado disponível.');
           dados.forEach((item, index) => {
-            console.log(`${index + 1}º - "${item.titulo}" | Empréstimos: ${item.quantidade}`);
+            console.log(`${index + 1} - ${item.titulo} | Quantidade: ${item.quantidade}`);
           });
         } catch (error) {
-          console.error('Erro ao gerar relatório:', error);
+          console.error('Erro ao gerar relatorio:', error);
         }
         break;
 
       case '2':
         try {
-          const dados = await obterClientesMaisAtivos();
+          const dados = await relatorioService.buscarClientesMaisAtivos();
           console.log('\n--- TOP 5 CLIENTES MAIS ATIVOS ---');
           if (dados.length === 0) console.log('Nenhum dado disponível.');
           dados.forEach((item, index) => {
-            console.log(`${index + 1}º - ${item.nome} | Total de Empréstimos: ${item.quantidade}`);
+            console.log(`${index + 1} - ${item.nome} | Quantidade: ${item.quantidade}`);
           });
         } catch (error) {
-          console.error('Erro ao gerar relatório:', error);
+          console.error('Erro ao gerar relatorio:', error);
         }
         break;
 
       case '3':
         try {
-          const dados = await obterResumoStatus();
+          const dados = await relatorioService.buscarResumoStatus();
           console.log('\n--- RESUMO DE STATUS ---');
           if (dados.length === 0) console.log('Nenhum dado disponível.');
           dados.forEach(item => {
-            const icone = item.status === 'Em aberto' ? '📍' : '✅';
-            console.log(`${icone} ${item.status}: ${item.quantidade}`);
+            console.log(`${item.status}: ${item.quantidade}`);
           });
         } catch (error) {
-          console.error('Erro ao gerar relatório:', error);
+          console.error('Erro ao gerar relatorio:', error);
         }
         break;
 
