@@ -1,7 +1,7 @@
-import readline from 'readline';
+import * as readlinePromises from 'readline/promises';
 import * as autorController from '../controllers/autorController.js';
 
-export async function exibirMenuAutores(rl: readline.Interface): Promise<void> {
+export async function exibirMenuAutores(rl: readlinePromises.Interface): Promise<void> {
   while (true) {
     console.log('\n--- GERENCIAR AUTORES ---');
     console.log('1. Cadastrar Autor');
@@ -10,15 +10,17 @@ export async function exibirMenuAutores(rl: readline.Interface): Promise<void> {
     console.log('4. Excluir Autor');
     console.log('0. Voltar');
 
-    const opcao = await new Promise<string>((resolve) => rl.question('Escolha uma opcao: ', resolve));
+    const opcao = await rl.question('Escolha uma opcao: ');
 
-    if (opcao === '0') break;
+    if (opcao.trim() === '0') {
+      break;
+    }
 
     try {
-      switch (opcao) {
+      switch (opcao.trim()) {
         case '1': {
-          const nome = await new Promise<string>((resolve) => rl.question('Nome: ', resolve));
-          const biografia = await new Promise<string>((resolve) => rl.question('Biografia: ', resolve));
+          const nome = await rl.question('Nome: ');
+          const biografia = await rl.question('Biografia: ');
           const autor = await autorController.cadastrar(nome, biografia);
           console.log(`Autor cadastrado com sucesso! ID: ${autor.id}`);
           break;
@@ -34,16 +36,16 @@ export async function exibirMenuAutores(rl: readline.Interface): Promise<void> {
           break;
         }
         case '3': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Autor a atualizar: ', resolve));
-          const nome = await new Promise<string>((resolve) => rl.question('Novo Nome: ', resolve));
-          const biografia = await new Promise<string>((resolve) => rl.question('Nova Biografia: ', resolve));
+          const idStr = await rl.question('ID do Autor a atualizar: ');
+          const nome = await rl.question('Novo Nome: ');
+          const biografia = await rl.question('Nova Biografia: ');
           const atualizado = await autorController.atualizar(Number(idStr), nome, biografia);
           if (atualizado) console.log('Autor atualizado com sucesso!');
           else console.log('Autor nao encontrado.');
           break;
         }
         case '4': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Autor a excluir: ', resolve));
+          const idStr = await rl.question('ID do Autor a excluir: ');
           const excluido = await autorController.excluir(Number(idStr));
           if (excluido) console.log('Autor excluido com sucesso!');
           else console.log('Autor nao encontrado.');

@@ -50,12 +50,13 @@ export async function listarEmprestimos(): Promise<Emprestimo[]> {
   return res.rows;
 }
 
-export async function registrarDevolucao(id: number): Promise<boolean> {
+export async function registrarDevolucao(id: number): Promise<{ livro_id: number } | null> {
   const query = `
     UPDATE emprestimo 
     SET data_devolucao = CURRENT_DATE 
-    WHERE id = $1 AND data_devolucao IS NULL;
+    WHERE id = $1 AND data_devolucao IS NULL
+    RETURNING livro_id;
   `;
   const res = await pool.query(query, [id]);
-  return (res.rowCount ?? 0) > 0;
+  return res.rows[0] ?? null;
 }

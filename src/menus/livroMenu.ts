@@ -1,7 +1,7 @@
-import readline from 'readline';
+import * as readlinePromises from 'readline/promises';
 import * as livroController from '../controllers/livroController.js';
 
-export async function exibirMenuLivros(rl: readline.Interface): Promise<void> {
+export async function exibirMenuLivros(rl: readlinePromises.Interface): Promise<void> {
   while (true) {
     console.log('\n--- GERENCIAR LIVROS ---');
     console.log('1. Cadastrar Livro');
@@ -10,19 +10,26 @@ export async function exibirMenuLivros(rl: readline.Interface): Promise<void> {
     console.log('4. Excluir Livro');
     console.log('0. Voltar');
 
-    const opcao = await new Promise<string>((resolve) => rl.question('Escolha uma opcao: ', resolve));
+    const opcao = await rl.question('Escolha uma opcao: ');
 
-    if (opcao === '0') break;
+    if (opcao.trim() === '0') {
+      break;
+    }
 
     try {
-      switch (opcao) {
+      switch (opcao.trim()) {
         case '1': {
-          const titulo = await new Promise<string>((resolve) => rl.question('Titulo: ', resolve));
-          const anoStr = await new Promise<string>((resolve) => rl.question('Ano de Publicacao: ', resolve));
-          const autorIdStr = await new Promise<string>((resolve) => rl.question('ID do Autor: ', resolve));
-          const qtdStr = await new Promise<string>((resolve) => rl.question('Quantidade Disponivel: ', resolve));
+          const titulo = await rl.question('Titulo: ');
+          const anoStr = await rl.question('Ano de Publicacao: ');
+          const autorIdStr = await rl.question('ID do Autor: ');
+          const qtdStr = await rl.question('Quantidade Disponivel: ');
           
-          const livro = await livroController.cadastrar(titulo, anoStr ? Number(anoStr) : null, Number(autorIdStr), Number(qtdStr));
+          const livro = await livroController.cadastrar(
+            titulo, 
+            anoStr ? Number(anoStr) : null, 
+            Number(autorIdStr), 
+            Number(qtdStr)
+          );
           console.log(`Livro cadastrado com sucesso! ID: ${livro.id}`);
           break;
         }
@@ -32,24 +39,32 @@ export async function exibirMenuLivros(rl: readline.Interface): Promise<void> {
             console.log('Nenhum livro cadastrado.');
           } else {
             console.log('\n--- LISTA DE LIVROS ---');
-            livros.forEach((l: any) => console.log(`ID: ${l.id} | Titulo: ${l.titulo} | Autor: ${l.nome_autor || l.autor_id} | Qtd: ${l.quantidade_disponivel}`));
+            livros.forEach((l: any) => 
+              console.log(`ID: ${l.id} | Titulo: ${l.titulo} | Autor: ${l.nome_autor || l.autor_id} | Qtd: ${l.quantidade_disponivel}`)
+            );
           }
           break;
         }
         case '3': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Livro a atualizar: ', resolve));
-          const titulo = await new Promise<string>((resolve) => rl.question('Novo Titulo: ', resolve));
-          const anoStr = await new Promise<string>((resolve) => rl.question('Novo Ano de Publicacao: ', resolve));
-          const autorIdStr = await new Promise<string>((resolve) => rl.question('Novo ID do Autor: ', resolve));
-          const qtdStr = await new Promise<string>((resolve) => rl.question('Nova Quantidade: ', resolve));
+          const idStr = await rl.question('ID do Livro a atualizar: ');
+          const titulo = await rl.question('Novo Titulo: ');
+          const anoStr = await rl.question('Novo Ano de Publicacao: ');
+          const autorIdStr = await rl.question('Novo ID do Autor: ');
+          const qtdStr = await rl.question('Nova Quantidade: ');
           
-          const atualizado = await livroController.atualizar(Number(idStr), titulo, anoStr ? Number(anoStr) : null, Number(autorIdStr), Number(qtdStr));
+          const atualizado = await livroController.atualizar(
+            Number(idStr), 
+            titulo, 
+            anoStr ? Number(anoStr) : null, 
+            Number(autorIdStr), 
+            Number(qtdStr)
+          );
           if (atualizado) console.log('Livro atualizado com sucesso!');
           else console.log('Livro nao encontrado.');
           break;
         }
         case '4': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Livro a excluir: ', resolve));
+          const idStr = await rl.question('ID do Livro a excluir: ');
           const excluido = await livroController.excluir(Number(idStr));
           if (excluido) console.log('Livro excluido com sucesso!');
           else console.log('Livro nao encontrado.');

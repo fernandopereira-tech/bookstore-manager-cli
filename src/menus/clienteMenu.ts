@@ -1,7 +1,7 @@
-import readline from 'readline';
+import * as readlinePromises from 'readline/promises';
 import * as clienteController from '../controllers/clienteController.js';
 
-export async function exibirMenuClientes(rl: readline.Interface): Promise<void> {
+export async function exibirMenuClientes(rl: readlinePromises.Interface): Promise<void> {
   while (true) {
     console.log('\n--- GERENCIAR CLIENTES ---');
     console.log('1. Cadastrar Cliente');
@@ -10,16 +10,18 @@ export async function exibirMenuClientes(rl: readline.Interface): Promise<void> 
     console.log('4. Excluir Cliente');
     console.log('0. Voltar');
 
-    const opcao = await new Promise<string>((resolve) => rl.question('Escolha uma opcao: ', resolve));
+    const opcao = await rl.question('Escolha uma opcao: ');
 
-    if (opcao === '0') break;
+    if (opcao.trim() === '0') {
+      break;
+    }
 
     try {
-      switch (opcao) {
+      switch (opcao.trim()) {
         case '1': {
-          const nome = await new Promise<string>((resolve) => rl.question('Nome: ', resolve));
-          const email = await new Promise<string>((resolve) => rl.question('Email: ', resolve));
-          const telefone = await new Promise<string>((resolve) => rl.question('Telefone: ', resolve));
+          const nome = await rl.question('Nome: ');
+          const email = await rl.question('Email: ');
+          const telefone = await rl.question('Telefone: ');
           const cliente = await clienteController.cadastrar(nome, email, telefone || null);
           console.log(`Cliente cadastrado com sucesso! ID: ${cliente.id}`);
           break;
@@ -35,17 +37,17 @@ export async function exibirMenuClientes(rl: readline.Interface): Promise<void> 
           break;
         }
         case '3': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Cliente a atualizar: ', resolve));
-          const nome = await new Promise<string>((resolve) => rl.question('Novo Nome: ', resolve));
-          const email = await new Promise<string>((resolve) => rl.question('Novo Email: ', resolve));
-          const telefone = await new Promise<string>((resolve) => rl.question('Novo Telefone: ', resolve));
+          const idStr = await rl.question('ID do Cliente a atualizar: ');
+          const nome = await rl.question('Novo Nome: ');
+          const email = await rl.question('Novo Email: ');
+          const telefone = await rl.question('Novo Telefone: ');
           const atualizado = await clienteController.atualizar(Number(idStr), nome, email, telefone || null);
           if (atualizado) console.log('Cliente atualizado com sucesso!');
           else console.log('Cliente nao encontrado.');
           break;
         }
         case '4': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Cliente a excluir: ', resolve));
+          const idStr = await rl.question('ID do Cliente a excluir: ');
           const excluido = await clienteController.excluir(Number(idStr));
           if (excluido) console.log('Cliente excluido com sucesso!');
           else console.log('Cliente nao encontrado.');

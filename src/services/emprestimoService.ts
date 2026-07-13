@@ -23,5 +23,9 @@ export async function listarEmprestimos(): Promise<Emprestimo[]> {
 }
 
 export async function registrarDevolucao(id: number): Promise<boolean> {
-  return await emprestimoRepository.registrarDevolucao(id);
+  const resultado = await emprestimoRepository.registrarDevolucao(id);
+  if (!resultado) return false;
+
+  await emprestimoRepository.atualizarEstoqueLivro(resultado.livro_id, 1);
+  return true;
 }

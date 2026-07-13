@@ -11,6 +11,12 @@ export const pool = new Pool({
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
+  connectionTimeoutMillis: 5000,
+  query_timeout: 8000,
+});
+
+pool.on('error', (err) => {
+  console.error('Erro inesperado no pool de conexoes:', err.message);
 });
 
 export async function testConnection(): Promise<boolean> {

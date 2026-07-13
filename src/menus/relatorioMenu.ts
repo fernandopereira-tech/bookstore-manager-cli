@@ -1,7 +1,7 @@
-import readline from 'readline';
+import * as readlinePromises from 'readline/promises';
 import * as relatorioController from '../controllers/relatorioController.js';
 
-export async function exibirMenuRelatorios(rl: readline.Interface): Promise<void> {
+export async function exibirMenuRelatorios(rl: readlinePromises.Interface): Promise<void> {
   while (true) {
     console.log('\n--- RELATORIOS GERENCIAIS (RF18) ---');
     console.log('1. Listar Livros Disponiveis');
@@ -11,12 +11,14 @@ export async function exibirMenuRelatorios(rl: readline.Interface): Promise<void
     console.log('5. Listar Clientes com Emprestimos Ativos');
     console.log('0. Voltar');
 
-    const opcao = await new Promise<string>((resolve) => rl.question('Escolha uma opcao: ', resolve));
+    const opcao = await rl.question('Escolha uma opcao: ');
 
-    if (opcao === '0') break;
+    if (opcao.trim() === '0') {
+      break;
+    }
 
     try {
-      switch (opcao) {
+      switch (opcao.trim()) {
         case '1': {
           const dados = await relatorioController.buscarLivrosDisponiveis();
           console.log('\n--- LIVROS DISPONIVEIS ---');

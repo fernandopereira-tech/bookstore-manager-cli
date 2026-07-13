@@ -1,7 +1,7 @@
-import readline from 'readline';
+import * as readlinePromises from 'readline/promises';
 import * as emprestimoController from '../controllers/emprestimoController.js';
 
-export async function exibirMenuEmprestimos(rl: readline.Interface): Promise<void> {
+export async function exibirMenuEmprestimos(rl: readlinePromises.Interface): Promise<void> {
   while (true) {
     console.log('\n--- GERENCIAR EMPRESTIMOS ---');
     console.log('1. Realizar Emprestimo');
@@ -9,15 +9,17 @@ export async function exibirMenuEmprestimos(rl: readline.Interface): Promise<voi
     console.log('3. Registrar Devolucao');
     console.log('0. Voltar');
 
-    const opcao = await new Promise<string>((resolve) => rl.question('Escolha uma opcao: ', resolve));
+    const opcao = await rl.question('Escolha uma opcao: ');
 
-    if (opcao === '0') break;
+    if (opcao.trim() === '0') {
+      break;
+    }
 
     try {
-      switch (opcao) {
+      switch (opcao.trim()) {
         case '1': {
-          const clienteIdStr = await new Promise<string>((resolve) => rl.question('ID do Cliente: ', resolve));
-          const livroIdStr = await new Promise<string>((resolve) => rl.question('ID do Livro: ', resolve));
+          const clienteIdStr = await rl.question('ID do Cliente: ');
+          const livroIdStr = await rl.question('ID do Livro: ');
           const emp = await emprestimoController.realizarEmprestimo(Number(clienteIdStr), Number(livroIdStr));
           console.log(`Emprestimo realizado com sucesso! ID: ${emp.id}`);
           break;
@@ -35,7 +37,7 @@ export async function exibirMenuEmprestimos(rl: readline.Interface): Promise<voi
           break;
         }
         case '3': {
-          const idStr = await new Promise<string>((resolve) => rl.question('ID do Emprestimo a devolver: ', resolve));
+          const idStr = await rl.question('ID do Emprestimo a devolver: ');
           const devolvido = await emprestimoController.realizarDevolucao(Number(idStr));
           if (devolvido) console.log('Devolucao registrada com sucesso!');
           else console.log('Emprestimo nao encontrado ou ja devolvido.');
