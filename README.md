@@ -104,15 +104,15 @@ Toda a montagem e amarração do grafo de dependências ocorre no ponto de entra
 
 ---
 
-## 2. Política de Erros e Validações de Domínio (RF08, RF10, RF11 e RF13)
+## 2. Política de Erros e Validações de Domínio
 
 Seguindo o princípio de que o banco de dados não deve ditar regras de negócio na interface exibindo erros técnicos de infraestrutura, implementei uma camada de validações na **Services**:
 
-### 1. Validação de Vínculos e Integridade (RF08)
+### 1. Validação de Vínculos e Integridade
 
 Ao cadastrar ou atualizar um livro (`livroService`), o sistema verifica ativamente no repositório se o `autorId` informado realmente existe. Se o autor não for encontrado, o fluxo é interrompido imediatamente com uma exceção de negócio. Isso evita chamadas desnecessárias ao banco de dados e impede que o PostgreSQL precise rejeitar a transação por falha de chave estrangeira (Foreign Key).
 
-### 2. Validação Tripla de Empréstimos (RF10)
+### 2. Validação Tripla de Empréstimos
 
 Antes de consolidar um empréstimo na base de dados, a função `cadastrarEmprestimo` realiza três validações consecutivas cruciais:
 
@@ -120,13 +120,13 @@ Antes de consolidar um empréstimo na base de dados, a função `cadastrarEmpres
 2. Verifica se o cliente informado existe na tabela de clientes.
 3. Avalia se há quantidade disponível no estoque para a saída.
 
-### 3. Fluxo Estrito de Devoluções e Reposição de Estoque (RF11)
+### 3. Fluxo Estrito de Devoluções e Reposição de Estoque
 
 Ao registrar a devolução de um exemplar (`emprestimoService`), o sistema opera sob uma política rígida de duas etapas integradas em nível de persistência:
 1. Localiza o registro do empréstimo ativo e calcula a baixa definindo a data de encerramento, garantindo integridade sobre o histórico.
 2. Dispara a reposição automática da quantidade em estoque do livro devolvido diretamente na tabela correspondente, mantendo o balanço físico síncrono com a realidade do acervo.
 
-### 4. Mensagens Amigáveis ao Usuário (RF13)
+### 4. Mensagens Amigáveis ao Usuário
 
 Todas as falhas de domínio listadas acima capturam as exceções de negócio e lançam erros amigáveis ao usuário final. Isso impede que mensagens ou logs técnicos do driver do PostgreSQL (como erros críticos de _Foreign Key Violation_) vazem para a interface, assegurando um comportamento limpo e legível na CLI.
 
