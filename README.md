@@ -104,7 +104,7 @@ Toda a montagem e amarração do grafo de dependências ocorre no ponto de entra
 
 ---
 
-## 2. Política de Erros e Validações de Domínio (RF08, RF10 e RF13)
+## 2. Política de Erros e Validações de Domínio (RF08, RF10, RF11 e RF13)
 
 Seguindo o princípio de que o banco de dados não deve ditar regras de negócio na interface exibindo erros técnicos de infraestrutura, implementei uma camada de validações na **Services**:
 
@@ -120,11 +120,17 @@ Antes de consolidar um empréstimo na base de dados, a função `cadastrarEmpres
 2. Verifica se o cliente informado existe na tabela de clientes.
 3. Avalia se há quantidade disponível no estoque para a saída.
 
-### 3. Mensagens Amigáveis ao Usuário (RF13)
+### 3. Fluxo Estrito de Devoluções e Reposição de Estoque (RF11)
+
+Ao registrar a devolução de um exemplar (`emprestimoService`), o sistema opera sob uma política rígida de duas etapas integradas em nível de persistência:
+1. Localiza o registro do empréstimo ativo e calcula a baixa definindo a data de encerramento, garantindo integridade sobre o histórico.
+2. Dispara a reposição automática da quantidade em estoque do livro devolvido diretamente na tabela correspondente, mantendo o balanço físico síncrono com a realidade do acervo.
+
+### 4. Mensagens Amigáveis ao Usuário (RF13)
 
 Todas as falhas de domínio listadas acima capturam as exceções de negócio e lançam erros amigáveis ao usuário final. Isso impede que mensagens ou logs técnicos do driver do PostgreSQL (como erros críticos de _Foreign Key Violation_) vazem para a interface, assegurando um comportamento limpo e legível na CLI.
 
-### 4. Revalidação e Proteção contra Duplicidade em Atualizações
+### 5. Revalidação e Proteção contra Duplicidade em Atualizações
 
 Estendi os critérios de segurança de e-mail na camada de clientes (`clienteService`). Tanto no cadastro quanto na atualização, uma checagem dupla é aplicada: formato válido (exigência de `@`) e unicidade na base. Na edição, a lógica permite que o cliente mantenha o próprio e-mail, mas barra imediatamente o fluxo caso ele tente alterar seus dados para um e-mail que já pertença a outro ID cadastrado no sistema.
 
