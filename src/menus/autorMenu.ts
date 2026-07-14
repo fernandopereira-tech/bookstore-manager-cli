@@ -36,19 +36,59 @@ export async function exibirMenuAutores(rl: readlinePromises.Interface): Promise
           break;
         }
         case '3': {
-          const idStr = await rl.question('ID do Autor a atualizar: ');
+          let idStr = '';
+          let cancelar = false;
+          while (true) {
+            idStr = await rl.question('ID do Autor a atualizar (ou 0 para cancelar): ');
+            if (idStr.trim() === '0') {
+              cancelar = true;
+              break;
+            }
+            const autores = await autorController.listar();
+            const autorExiste = autores.some((a) => a.id === Number(idStr));
+            if (autorExiste) {
+              break;
+            }
+            console.log(`\n[ATENÇÃO] Autor com ID "${idStr}" não encontrado.`);
+            console.log('Por favor, digite um ID de autor válido.\n');
+          }
+
+          if (cancelar) {
+            console.log('Operação cancelada.');
+            break;
+          }
+
           const nome = await rl.question('Novo Nome: ');
           const biografia = await rl.question('Nova Biografia: ');
           const atualizado = await autorController.atualizar(Number(idStr), nome, biografia);
-          if (atualizado) console.log('Autor atualizado com sucesso!');
-          else console.log('Autor nao encontrado.');
+          if (atualizado) console.log('Autor updated com sucesso!');
           break;
         }
         case '4': {
-          const idStr = await rl.question('ID do Autor a excluir: ');
+          let idStr = '';
+          let cancelar = false;
+          while (true) {
+            idStr = await rl.question('ID do Autor a excluir (ou 0 para cancelar): ');
+            if (idStr.trim() === '0') {
+              cancelar = true;
+              break;
+            }
+            const autores = await autorController.listar();
+            const autorExiste = autores.some((a) => a.id === Number(idStr));
+            if (autorExiste) {
+              break;
+            }
+            console.log(`\n[ATENÇÃO] Autor com ID "${idStr}" não encontrado.`);
+            console.log('Por favor, digite um ID de autor válido.\n');
+          }
+
+          if (cancelar) {
+            console.log('Operação cancelada.');
+            break;
+          }
+
           const excluido = await autorController.excluir(Number(idStr));
           if (excluido) console.log('Autor excluido com sucesso!');
-          else console.log('Autor nao encontrado.');
           break;
         }
         default:
