@@ -21,14 +21,45 @@ export async function exibirMenuClientes(rl: readlinePromises.Interface): Promis
         case '1': {
           const nome = await rl.question('Nome: ');
           let email = '';
+          let cancelar = false;
+          let primeiraTentativa = true;
 
           while (true) {
-            email = await rl.question('Email: ');
-            if (email.trim().includes('@')) {
+            const promptTexto = primeiraTentativa ? 'Email: ' : 'Email (ou 0 para cancelar): ';
+            email = await rl.question(promptTexto);
+            const emailFormatado = email.trim();
+
+            if (!primeiraTentativa && emailFormatado === '0') {
+              cancelar = true;
               break;
             }
-            console.log('\n[ATENÇÃO] E-mail inválido! O e-mail precisa conter um "@" (exemplo: usuario@provedor.com).');
-            console.log('Por favor, tente novamente.\n');
+
+            if (!emailFormatado.includes('@')) {
+              console.log('\n[ATENÇÃO] E-mail inválido! O e-mail precisa conter um "@" (exemplo: usuario@provedor.com).');
+              console.log('Por favor, tente novamente.\n');
+              primeiraTentativa = false;
+              continue;
+            }
+
+            const clientes = await clienteController.listar();
+            const emailDuplicado = clientes.some(
+              (c) => c.email.toLowerCase() === emailFormatado.toLowerCase()
+            );
+
+            if (emailDuplicado) {
+              console.log('\n[ATENÇÃO] Não foi possível concluir: Email já cadastrado.');
+              console.log('Por favor, tente novamente.\n');
+              primeiraTentativa = false;
+              continue;
+            }
+
+            email = emailFormatado;
+            break;
+          }
+
+          if (cancelar) {
+            console.log('Cadastro cancelado pelo usuário.');
+            break;
           }
 
           const telefone = await rl.question('Telefone: ');
@@ -82,13 +113,43 @@ export async function exibirMenuClientes(rl: readlinePromises.Interface): Promis
           const nome = await rl.question('Novo Nome: ');
           
           let email = '';
+          let primeiraTentativa = true;
           while (true) {
-            email = await rl.question('Novo Email: ');
-            if (email.trim().includes('@')) {
+            const promptTexto = primeiraTentativa ? 'Novo Email: ' : 'Novo Email (ou 0 para cancelar): ';
+            email = await rl.question(promptTexto);
+            const emailFormatado = email.trim();
+
+            if (!primeiraTentativa && emailFormatado === '0') {
+              cancelar = true;
               break;
             }
-            console.log('\n[ATENÇÃO] E-mail inválido! O e-mail precisa conter um "@" (exemplo: usuario@provedor.com).');
-            console.log('Por favor, tente novamente.\n');
+
+            if (!emailFormatado.includes('@')) {
+              console.log('\n[ATENÇÃO] E-mail inválido! O e-mail precisa conter um "@" (exemplo: usuario@provedor.com).');
+              console.log('Por favor, tente novamente.\n');
+              primeiraTentativa = false;
+              continue;
+            }
+
+            const clientes = await clienteController.listar();
+            const emailDuplicado = clientes.some(
+              (c) => c.email.toLowerCase() === emailFormatado.toLowerCase() && c.id !== Number(idStr)
+            );
+
+            if (emailDuplicado) {
+              console.log('\n[ATENÇÃO] Não foi possível concluir: Email já cadastrado por outro cliente.');
+              console.log('Por favor, tente novamente.\n');
+              primeiraTentativa = false;
+              continue;
+            }
+
+            email = emailFormatado;
+            break;
+          }
+
+          if (cancelar) {
+            console.log('Operação cancelada.');
+            break;
           }
 
           const telefone = await rl.question('Novo Telefone: ');
