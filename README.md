@@ -1,8 +1,8 @@
 # BookStore Manager - CLI
 
----
-
 Gerenciador de livraria via linha de comando (CLI) desenvolvido em TypeScript.
+
+---
 
 ## Demonstração Online
 
