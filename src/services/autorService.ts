@@ -3,6 +3,12 @@ import { Autor } from '../models/autor.js';
 
 export async function cadastrarAutor(nome: string, biografia: string): Promise<Autor> {
   if (!nome.trim()) throw new Error('O nome do autor nao pode ser vazio.');
+
+  const autorExistente = await autorRepository.buscarAutorPorNome(nome);
+  if (autorExistente) {
+    throw new Error('Autor ja cadastrado com este nome.');
+  }
+
   return await autorRepository.cadastrarAutor(nome, biografia);
 }
 

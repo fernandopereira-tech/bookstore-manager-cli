@@ -19,7 +19,48 @@ export async function exibirMenuAutores(rl: readlinePromises.Interface): Promise
     try {
       switch (opcao.trim()) {
         case '1': {
-          const nome = await rl.question('Nome: ');
+          let nome = '';
+          let cancelar = false;
+          let primeiraTentativa = true;
+
+          while (true) {
+            const promptTexto = primeiraTentativa ? 'Nome: ' : 'Nome (ou 0 para cancelar): ';
+            nome = await rl.question(promptTexto);
+            const nomeFormatado = nome.trim();
+
+            if (!primeiraTentativa && nomeFormatado === '0') {
+              cancelar = true;
+              break;
+            }
+
+            if (!nomeFormatado) {
+              console.log('\n[ATENÇÃO] O nome do autor não pode ser vazio.');
+              console.log('Por favor, tente novamente.\n');
+              primeiraTentativa = false;
+              continue;
+            }
+
+            const autores = await autorController.listar();
+            const autorDuplicado = autores.some(
+              (a) => a.nome.toLowerCase() === nomeFormatado.toLowerCase()
+            );
+
+            if (autorDuplicado) {
+              console.log('\n[ATENÇÃO] Autor já cadastrado com este nome!');
+              console.log('Por favor, tente novamente.\n');
+              primeiraTentativa = false;
+              continue;
+            }
+
+            nome = nomeFormatado;
+            break;
+          }
+
+          if (cancelar) {
+            console.log('Cadastro cancelado pelo usuário.');
+            break;
+          }
+
           const biografia = await rl.question('Biografia: ');
           const autor = await autorController.cadastrar(nome, biografia);
           console.log(`Autor cadastrado com sucesso! ID: ${autor.id}`);

@@ -7,6 +7,12 @@ export async function buscarAutorPorId(id: number): Promise<Autor | null> {
     return res.rows.length > 0 ? res.rows[0] : null;
 }
 
+export async function buscarAutorPorNome(nome: string): Promise<Autor | null> {
+    const query = 'SELECT * FROM autor WHERE LOWER(nome) = LOWER($1);';
+    const res = await pool.query(query, [nome.trim()]);
+    return res.rows.length > 0 ? res.rows[0] : null;
+}
+
 export async function cadastrarAutor(nome: string, biografia: string): Promise<Autor> {
     const query = `
         INSERT INTO autor (nome, biografia) 
