@@ -1,8 +1,22 @@
 # BookStore Manager - CLI
 
+---
+
+Gerenciador de livraria via linha de comando (CLI) desenvolvido em TypeScript.
+
+## Demonstração Online
+
+Antes de instalar o projeto, experimente a interface gráfica que simula a experiência da aplicação CLI.
+
+> A demonstração foi criada apenas para apresentar o funcionamento e a identidade visual do projeto **Moosha Corp**.
+
+### 👉 [Acessar Demonstração Online](https://bookstore-manager-cli-demo.vercel.app/)
+
+---
+
 ## Objetivo e restrições
 
-Desenvolvi este projeto como um aplicativo interativo de linha de comando (CLI) voltado para o gerenciamento de uma livraria/biblioteca que controla os fluxos de autores, livros, clientes e empréstimos. Construí este software como um exemplo de referência arquitetural: meu objetivo principal foi modelar um desenho limpo, modular e robusto, aplicando boas práticas de engenharia de software e padrões reais de mercado.
+Este projeto foi desenvolvido como um aplicativo interativo de linha de comando (CLI) voltado para o gerenciamento de uma livraria/biblioteca que controla os fluxos de autores, livros, clientes e empréstimos. Construí este software como um exemplo de referência arquitetural: meu objetivo principal foi modelar um desenho limpo, modular e robusto, aplicando boas práticas de engenharia de software e padrões reais de mercado.
 
 Três grandes restrições e guias moldaram minhas decisões:
 
@@ -47,45 +61,58 @@ Antes de iniciar a aplicação, crie o banco `bookstore` no PostgreSQL e execute
 psql -U seu_usuario -d bookstore -f src/database/schema.sql
 ```
 
-### Lições Aprendidas: Conflito entre `ts-node-dev` e aplicações CLI
+### Lições Aprendidas: Conflito entre _Watch Mode_ e aplicações CLI
 
-Durante o desenvolvimento, identifiquei que ferramentas de execução em tempo real, como o **ts-node-dev**, não se comportam bem em aplicações de Linha de Comando (CLI). Como a aplicação permanece aguardando a entrada do usuário, o processo de _watch mode_ passa a disputar o controle do terminal, podendo causar travamentos e comportamentos inesperados.
+Durante o desenvolvimento, identifiquei que ferramentas de execução em tempo real com monitoramento de arquivos (como **ts-node-dev** ou **`tsx watch`**) não se comportam bem em aplicações de Linha de Comando (CLI) interativas. Como a aplicação permanece aguardando a entrada do usuário, o processo de _watch mode_ passa a disputar o controle do terminal (`stdin`), o que causa travamentos e impede a digitação de comandos.
 
-Para evitar esse problema, optei por separar as responsabilidades: o **TypeScript** realiza apenas a compilação do projeto e o **Node.js** executa exclusivamente o código JavaScript gerado.
+Para solucionar isso e manter um fluxo de desenvolvimento ágil, adotei duas estratégias no projeto:
+
+1. **Desenvolvimento Rápido (`npm run dev`):** Execução direta via `tsx` (sem a flag `--watch`), permitindo testar o código TypeScript em tempo real com total interatividade no terminal.
+2. **Produção / Execução Estrita (`npm start`):** Separação rígida de responsabilidades. O **TypeScript** realiza apenas a compilação estática do projeto (`npm run build`) e o **Node.js** executa exclusivamente o código JavaScript final gerado na pasta `dist/`.
 
 ```mermaid
 graph LR
 
-subgraph "❌ Execução Direta (ts-node-dev)"
+subgraph "❌ Execução com Watch Mode (ts-node-dev / tsx watch)"
     A["CLI aguardando entrada"]
-    B["Watch Mode"]
-    C["Terminal trava"]
+    B["Watch Mode (Monitor de arquivos)"]
+    C["Terminal trava / Ignora teclado"]
 
-    A <-->|Disputam o terminal| B
+    A <-->|Disputam o stdin do terminal| B
     A --> C
     B --> C
 end
 
-subgraph "✅ Estratégia Utilizada no Projeto"
-    D["TypeScript (tsc)"]
-    E["dist/ (JavaScript)"]
-    F["Node.js"]
-    G["CLI funcionando normalmente"]
+subgraph "✅ Estratégia de Desenvolvimento (tsx)"
+    D["Código TS"]
+    E["tsx (Execução Direta)"]
+    F["CLI funcionando normalmente"]
 
-    D -->|Compila| E
-    E -->|Executa| F
-    F --> G
+    D --> E
+    E --> F
+end
+
+subgraph "✅ Estratégia de Produção (Build)"
+    G["TypeScript (tsc)"]
+    H["dist/ (JavaScript)"]
+    I["Node.js"]
+    J["CLI estável e otimizado"]
+
+    G -->|Compila| H
+    H -->|Executa| I
+    I --> J
 end
 
 style C fill:#ffebe9,stroke:#ff8182,stroke-width:2px,color:#000
-style G fill:#dafbe1,stroke:#2da44e,stroke-width:2px,color:#000
+style F fill:#dafbe1,stroke:#2da44e,stroke-width:2px,color:#000
+style J fill:#dafbe1,stroke:#2da44e,stroke-width:2px,color:#000
 ```
 
 ---
 
 ## 1. Arquitetura em Camadas e Injeção de Dependências
 
-O fluxo do meu sistema respeita uma hierarquia estrita entre as camadas, onde cada componente possui uma responsabilidade única e se comunica estritamente com a camada imediatamente abaixo através de acoplamentos limpos. Realizei a amarração das instâncias manualmente no ponto de entrada do sistema:
+O fluxo deste sistema respeita uma hierarquia estrita entre as camadas, onde cada componente possui uma responsabilidade única e se comunica estritamente com a camada imediatamente abaixo através de acoplamentos limpos. A amarração das instâncias foi realizada manualmente no ponto de entrada do sistema:
 
 ```
 View (Menus) → Controller → Service (Regras de Negócio) → Repository (Persistência / Banco)
@@ -195,6 +222,8 @@ erDiagram
 
 ```
 bookstore-manager-cli/
+├── demo/                               # Página de demonstração estática hospedada na Vercel
+│   └── index.html                      
 ├── src/
 │   ├── main.ts                         # Ponto de entrada e Composition Root (amarração do sistema)
 │   ├── controllers/                    # Intermediários finos entre a View (Menus) e o Domínio (Services)
