@@ -3,7 +3,7 @@ import * as relatorioController from '../controllers/relatorioController.js';
 
 export async function exibirMenuRelatorios(rl: readlinePromises.Interface): Promise<void> {
   while (true) {
-    console.log('\n--- RELATORIOS GERENCIAIS (RF18) ---');
+    console.log('\n--- RELATORIOS GERENCIAIS ---');
     console.log('1. Listar Livros Disponiveis');
     console.log('2. Listar Livros Emprestados (Ativos)');
     console.log('3. Quantidade de Livros Cadastrados por Autor');
